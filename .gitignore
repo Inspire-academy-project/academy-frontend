@@ -42,3 +42,13 @@ next-env.d.ts
 
 # 예시 파일은 커밋 (실제 .env.local 은 계속 무시됨)
 !.env.example
+
+# 개인정보 — 원생 명부·결제 엑셀 등은 절대 커밋하지 않는다
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.tsv
+*.hwp
+*.hwpx
+/data/
