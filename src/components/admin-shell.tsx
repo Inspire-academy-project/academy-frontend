@@ -8,6 +8,7 @@ const NAV = [
   { href: '/dashboard', label: '홈' },
   { href: '/attendance', label: '출결' },
   { href: '/students', label: '원생' },
+  { href: '/payments', label: '학원비' },
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
