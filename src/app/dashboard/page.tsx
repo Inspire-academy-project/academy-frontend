@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { AdminShell } from '@/components/admin-shell';
 
 const NEXT_SCREENS = [
-  { label: '출결 체크판', note: '날짜별 명단에 출석·지각·결석 입력' },
   { label: '학원비 청구·미납 현황', note: '16일~15일 주기 청구, 일할계산' },
   { label: '급식 신청·수령·정산', note: '수령표와 월별 후불 정산' },
 ];
@@ -15,6 +14,13 @@ export default function DashboardPage() {
       <h1 className="text-xl font-bold tracking-tight">홈</h1>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/attendance"
+          className="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          <h2 className="font-semibold">출결</h2>
+          <p className="mt-1 text-sm text-muted">오늘 등원 체크, 지난 날짜 수정</p>
+        </Link>
         <Link
           href="/students"
           className="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
