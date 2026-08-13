@@ -3,10 +3,7 @@
 import Link from 'next/link';
 import { AdminShell } from '@/components/admin-shell';
 
-const NEXT_SCREENS = [
-  { label: '학원비 청구·미납 현황', note: '16일~15일 주기 청구, 일할계산' },
-  { label: '급식 신청·수령·정산', note: '수령표와 월별 후불 정산' },
-];
+const NEXT_SCREENS = [{ label: '급식 신청·수령·정산', note: '수령표와 월별 후불 정산' }];
 
 export default function DashboardPage() {
   return (
@@ -27,6 +24,13 @@ export default function DashboardPage() {
         >
           <h2 className="font-semibold">원생</h2>
           <p className="mt-1 text-sm text-muted">명단 조회, 원생 등록</p>
+        </Link>
+        <Link
+          href="/payments"
+          className="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          <h2 className="font-semibold">학원비</h2>
+          <p className="mt-1 text-sm text-muted">청구서 생성, 입금 기록, 미납 현황</p>
         </Link>
       </div>
 
