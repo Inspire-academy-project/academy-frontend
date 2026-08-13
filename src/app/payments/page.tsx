@@ -9,11 +9,14 @@ import {
   type PaymentStatus,
   type RefundStatus,
   STATUS_LABEL,
+  createPeriod,
+  deriveTuitionPeriod,
   fetchPayments,
   fetchPeriods,
   fetchRefundStatus,
   formatWon,
   generatePayments,
+  nextYearMonth,
   recordPayment,
   shortDate,
 } from '@/lib/payments';
@@ -41,6 +44,8 @@ export default function PaymentsPage() {
   const [onlyUnpaid, setOnlyUnpaid] = useState(false);
   const [busy, setBusy] = useState(false);
   const [refund, setRefund] = useState<RefundStatus | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [newMonth, setNewMonth] = useState(nextYearMonth);
 
   useEffect(() => {
     let cancelled = false;
@@ -156,6 +161,24 @@ export default function PaymentsPage() {
     }
   }
 
+  async function handleCreatePeriod() {
+    if (!newMonth) return;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const period = await createPeriod(deriveTuitionPeriod(newMonth));
+      setPeriods((current) => [period, ...current]);
+      setPeriodId(period.id);
+      setCreating(false);
+      setNotice(`${period.label} 주기를 만들었습니다. 이어서 청구서를 생성하세요.`);
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : '청구 주기 생성에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleRefund(row: Payment) {
     if (periodId === null) return;
     setError(null);
@@ -194,6 +217,12 @@ export default function PaymentsPage() {
             ))}
           </select>
           <button
+            onClick={() => setCreating((v) => !v)}
+            className="rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            새 주기
+          </button>
+          <button
             onClick={handleGenerate}
             disabled={busy || periodId === null}
             className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50"
@@ -202,6 +231,46 @@ export default function PaymentsPage() {
           </button>
         </div>
       </div>
+
+      {creating && (
+        <div className="mt-4 rounded-lg border border-border bg-surface p-4">
+          <h2 className="font-semibold">새 청구 주기</h2>
+          <p className="mt-1 text-sm text-muted">
+            정규반은 16일부터 다음 달 15일까지를 한 달로 봅니다. 달만 고르면 나머지는 자동으로
+            정해집니다.
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <input
+              type="month"
+              value={newMonth}
+              onChange={(e) => setNewMonth(e.target.value)}
+              aria-label="청구할 달"
+              className={inputClass}
+            />
+            {newMonth && (
+              <span className="font-mono text-sm text-muted tabular-nums">
+                {deriveTuitionPeriod(newMonth).label} · {shortDate(deriveTuitionPeriod(newMonth).startDate)}{' '}
+                ~ {shortDate(deriveTuitionPeriod(newMonth).endDate)} · 납부기한{' '}
+                {shortDate(deriveTuitionPeriod(newMonth).dueDate)}
+              </span>
+            )}
+            <button
+              onClick={handleCreatePeriod}
+              disabled={busy || !newMonth}
+              className="ml-auto rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? '만드는 중…' : '주기 만들기'}
+            </button>
+            <button
+              onClick={() => setCreating(false)}
+              className="rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-border bg-surface px-3 py-1 text-sm">

@@ -114,6 +114,34 @@ export function formatWon(amount: number): string {
   return amount.toLocaleString('ko-KR');
 }
 
+/**
+ * 정규반은 매달 일수와 상관없이 16일부터 다음 달 15일까지를 한 달로 본다.
+ * 달만 고르면 나머지가 정해지므로 날짜를 직접 입력하지 않게 한다.
+ */
+export function deriveTuitionPeriod(yearMonth: string): NewPeriod {
+  const [year, month] = yearMonth.split('-').map(Number);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const start = new Date(Date.UTC(year, month - 1, 16));
+  const end = new Date(Date.UTC(year, month, 15));
+
+  return {
+    label: `${year}년 ${month}월`,
+    startDate: iso(start),
+    endDate: iso(end),
+    dueDate: iso(start),
+  };
+}
+
+/** 오늘이 속한 청구 주기의 다음 달을 기본값으로 준다. */
+export function nextYearMonth(): string {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  // 16일 이후면 이번 달 주기가 이미 시작됐으므로 다음 달을 제안한다.
+  const offset = kst.getUTCDate() >= 16 ? 1 : 0;
+  const target = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth() + offset, 1));
+  return `${target.getUTCFullYear()}-${String(target.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
 /** 2026-09-16 -> 9/16 */
 export function shortDate(value: string): string {
   const [, month, day] = value.slice(0, 10).split('-');
