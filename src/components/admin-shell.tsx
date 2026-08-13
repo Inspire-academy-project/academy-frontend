@@ -6,6 +6,7 @@ import { ROLE_LABEL, logout, useRequireAuth } from '@/lib/auth';
 
 const NAV = [
   { href: '/dashboard', label: '홈' },
+  { href: '/attendance', label: '출결' },
   { href: '/students', label: '원생' },
 ] as const;
 
