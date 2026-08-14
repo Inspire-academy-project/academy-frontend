@@ -10,6 +10,7 @@ import {
   STATUS_ORDER,
   fetchAttendance,
   formatDateLabel,
+  formatTime,
   markAttendance,
   markAttendanceBulk,
   shiftDate,
@@ -23,6 +24,17 @@ const STATUS_STYLE: Record<AttendanceStatus, string> = {
   ABSENT: 'bg-danger text-white border-danger',
   EXCUSED: 'bg-muted text-white border-muted',
 };
+
+/** 아직 찍지 않았으면 자리만 비워 둔다. 줄이 흔들리지 않게 폭은 고정한다. */
+function Punch({ label, at }: { label: string; at: string | null }) {
+  if (!at) return <span className="w-[4.5rem]" aria-hidden />;
+
+  return (
+    <span className="w-[4.5rem]">
+      {label} <span className="font-semibold text-foreground">{at}</span>
+    </span>
+  );
+}
 
 export default function AttendancePage() {
   const [date, setDate] = useState(todayInKst);
@@ -81,10 +93,20 @@ export default function AttendancePage() {
     const previous = row.attendance;
     setPending((p) => [...p, row.studentId]);
     // 먼저 화면을 바꾸고, 실패하면 되돌린다.
+    // 시각은 서버도 건드리지 않으므로 그대로 둔다.
     setRows((current) =>
       current.map((r) =>
         r.studentId === row.studentId
-          ? { ...r, attendance: { id: previous?.id ?? 0, status, checkInAt: null, note: null } }
+          ? {
+              ...r,
+              attendance: {
+                id: previous?.id ?? 0,
+                status,
+                checkInAt: previous?.checkInAt ?? null,
+                checkOutAt: previous?.checkOutAt ?? null,
+                note: previous?.note ?? null,
+              },
+            }
           : r,
       ),
     );
@@ -216,7 +238,13 @@ export default function AttendancePage() {
                 {row.gender ? GENDER_LABEL[row.gender] : ''}
               </span>
 
-              <div className="ml-auto flex gap-1" role="group" aria-label={`${row.name} 출결`}>
+              {/* 학생이 패드에 찍은 시각. 지각 여부는 이 시각을 보고 판단한다. */}
+              <div className="ml-auto flex items-center gap-3 font-mono text-xs tabular-nums text-muted">
+                <Punch label="등원" at={formatTime(row.attendance?.checkInAt ?? null)} />
+                <Punch label="하원" at={formatTime(row.attendance?.checkOutAt ?? null)} />
+              </div>
+
+              <div className="flex gap-1" role="group" aria-label={`${row.name} 출결`}>
                 {STATUS_ORDER.map((status) => {
                   const active = row.attendance?.status === status;
                   return (
