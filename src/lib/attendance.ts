@@ -12,7 +12,9 @@ export type AttendanceRow = {
   attendance: {
     id: number;
     status: AttendanceStatus;
+    /** 등원·하원 시각. 키오스크가 찍은 것만 들어 있다. */
     checkInAt: string | null;
+    checkOutAt: string | null;
     note: string | null;
   } | null;
 };
@@ -51,6 +53,20 @@ export function markAttendanceBulk(
 export function todayInKst(): string {
   const now = new Date();
   return new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * 서버가 준 시각을 08:52 처럼 보여준다.
+ * 기록이므로 보는 사람 시간대가 아니라 학원 시간대로 고정한다.
+ */
+export function formatTime(iso: string | null): string | null {
+  if (!iso) return null;
+  return new Date(iso).toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  });
 }
 
 export function shiftDate(date: string, days: number): string {
