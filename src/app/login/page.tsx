@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ApiError } from '@/lib/api';
 import { login } from '@/lib/auth';
@@ -23,8 +24,10 @@ export default function LoginPage() {
 
     try {
       const { user } = await login(email.trim(), password);
+      // 학생 계정은 이제 만들 수 있지만 볼 화면(/me)이 아직 없다.
+      // 관리자 화면으로 보내면 권한이 없어 되튕기므로 여기서 멈춘다.
       if (user.role === 'STUDENT') {
-        setError('학생 계정은 아직 사용할 수 없습니다. 원장님께 문의하세요.');
+        setError('학생용 화면은 아직 준비 중입니다. 열리면 이 계정으로 들어올 수 있습니다.');
         setSubmitting(false);
         return;
       }
@@ -102,6 +105,13 @@ export default function LoginPage() {
             {submitting ? '로그인 중…' : '로그인'}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-muted">
+          학원에서 가입 코드를 받으셨나요?{' '}
+          <Link href="/register" className="text-accent underline underline-offset-4">
+            학생 가입
+          </Link>
+        </p>
       </div>
     </main>
   );
