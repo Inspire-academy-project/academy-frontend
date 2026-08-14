@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminShell } from '@/components/admin-shell';
+import { StudentAccountDialog } from '@/components/student-account-dialog';
 import { ApiError } from '@/lib/api';
 import {
   GENDER_LABEL,
@@ -20,6 +21,7 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accountOf, setAccountOf] = useState<Student | null>(null);
 
   const load = useCallback(async (current: StudentFilter) => {
     setLoading(true);
@@ -109,12 +111,13 @@ export default function StudentsPage() {
               <th className="px-4 py-3 font-semibold">출결번호</th>
               <th className="px-4 py-3 font-semibold">학부모 연락처</th>
               <th className="px-4 py-3 font-semibold">등원일</th>
+              <th className="px-4 py-3 font-semibold">계정</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-muted">
+                <td colSpan={8} className="px-4 py-10 text-center text-muted">
                   불러오는 중…
                 </td>
               </tr>
@@ -122,7 +125,7 @@ export default function StudentsPage() {
 
             {!loading && !error && students.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-muted">
+                <td colSpan={8} className="px-4 py-10 text-center text-muted">
                   조건에 맞는 원생이 없습니다.
                 </td>
               </tr>
@@ -146,11 +149,27 @@ export default function StudentsPage() {
                   <td className="px-4 py-3 font-mono text-xs text-muted">
                     {formatDate(student.enrolledAt)}
                   </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setAccountOf(student)}
+                      className="rounded-md border border-border px-2.5 py-1 text-xs transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      계정
+                    </button>
+                  </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
+
+      {accountOf && (
+        <StudentAccountDialog
+          studentId={accountOf.id}
+          studentName={accountOf.name}
+          onClose={() => setAccountOf(null)}
+        />
+      )}
     </AdminShell>
   );
 }
