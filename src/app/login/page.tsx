@@ -15,6 +15,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     router.prefetch('/dashboard');
+    router.prefetch('/me');
   }, [router]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -24,14 +25,8 @@ export default function LoginPage() {
 
     try {
       const { user } = await login(email.trim(), password);
-      // 학생 계정은 이제 만들 수 있지만 볼 화면(/me)이 아직 없다.
-      // 관리자 화면으로 보내면 권한이 없어 되튕기므로 여기서 멈춘다.
-      if (user.role === 'STUDENT') {
-        setError('학생용 화면은 아직 준비 중입니다. 열리면 이 계정으로 들어올 수 있습니다.');
-        setSubmitting(false);
-        return;
-      }
-      router.replace('/dashboard');
+      // 학생과 관리자는 볼 화면이 다르다. 서로의 화면은 권한이 없어 되튕긴다.
+      router.replace(user.role === 'STUDENT' ? '/me' : '/dashboard');
     } catch (caught) {
       if (caught instanceof ApiError) {
         setError(caught.message);
@@ -47,8 +42,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <p className="font-mono text-xs tracking-widest text-muted uppercase">Inspire Academy</p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight">관리자 로그인</h1>
-          <p className="mt-2 text-sm text-muted">출결·급식·학원비를 한 곳에서 관리합니다.</p>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight">로그인</h1>
+          <p className="mt-2 text-sm text-muted">
+            원장·강사는 관리 화면으로, 학생은 내 출결·납부 화면으로 들어갑니다.
+          </p>
         </div>
 
         <form

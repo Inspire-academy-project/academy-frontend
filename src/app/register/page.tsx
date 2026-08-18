@@ -191,8 +191,8 @@ function ErrorText({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * 학생용 화면(`/me`)은 아직 없다. 가입은 끝났고 기록이 이어졌다는 것만 알린다.
- * 없는 화면으로 보내면 로그인 화면으로 튕겨 나와 실패한 것처럼 보인다.
+ * 가입하면서 토큰이 저장되므로 바로 내 화면으로 들어갈 수 있다.
+ * 자동으로 넘기지 않는 이유는 어느 원생과 이어졌는지 확인할 시간을 주기 위함이다.
  */
 function Done({ name }: { name: string }) {
   return (
@@ -202,9 +202,12 @@ function Done({ name }: { name: string }) {
         <strong className="text-foreground">{name}</strong> 학생 계정이 만들어졌고, 학원에 등록된
         출결·납부 기록과 이어졌습니다.
       </p>
-      <p className="mt-3 rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
-        내 출결·납부를 보는 화면은 아직 준비 중입니다. 열리면 이 계정으로 바로 들어올 수 있습니다.
-      </p>
+      <Link
+        href="/me"
+        className="mt-4 block rounded-md bg-accent px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        내 출결·납부 보기
+      </Link>
     </div>
   );
 }
